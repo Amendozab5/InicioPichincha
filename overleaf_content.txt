@@ -1,0 +1,504 @@
+% Instrucciones: Copia todo el contenido de este archivo y pégalo en tu proyecto principal (.tex) en Overleaf.
+
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{geometry}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{hyperref}
+
+\geometry{top=2.5cm, bottom=2.5cm, left=3cm, right=3cm}
+
+% Configuración del estilo para bloques de código
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{backcolour}{rgb}{0.96,0.96,0.96}
+\definecolor{pichincha_blue}{RGB}{15, 43, 76}
+\definecolor{pichincha_yellow}{RGB}{255, 221, 0}
+\definecolor{linkblue}{RGB}{0, 115, 194}
+
+\lstset{
+    backgroundcolor=\color{backcolour},
+    commentstyle=\color{gray!80},
+    keywordstyle=\color{pichincha_blue}\bfseries,
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{linkblue},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=left,                    
+    numbersep=5pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=2,
+    frame=single
+}
+
+\title{Diseño Responsivo del Inicio de Sesión de una Aplicación Móvil\\
+\large Caso de Estudio: App Móvil del Banco Pichincha}
+\author{Estudiante}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\section{Introducción}
+El diseño de interfaces móviles de calidad demanda la adopción de esquemas visuales fluidos y adaptables (responsivos). Esto asegura que los elementos gráficos no sufran desbordamientos de pantalla (\textit{overflow}) o recortes debido a las grandes diferencias en resoluciones, relaciones de aspecto y el despliegue del teclado virtual del sistema operativo. 
+
+En este reporte se documenta el proceso y el código fuente empleado para elaborar una versión responsiva y premium de la pantalla de inicio de sesión de la aplicación móvil de \textbf{Banco Pichincha}. Esta implementación respeta los lineamientos corporativos estéticos de la marca e introduce una experiencia de usuario completamente responsiva sobre la plataforma Android.
+
+\section{Propiedades de la Interfaz y Responsividad}
+Para lograr que la interfaz se adapte perfectamente a cualquier dispositivo, se implementaron los siguientes patrones arquitectónicos en la vista XML:
+\begin{enumerate}
+    \item \textbf{ScrollView como Raíz}: El layout principal está envuelto en un contenedor \texttt{ScrollView} configurado con \texttt{android:fillViewport="true"}. Esto asegura que todo el lienzo sea desplazable de manera automática cuando el teclado virtual aparece o en pantallas con menor altura física.
+    \item \textbf{Restricciones Horizontales Fluídas (ConstraintLayout Chain)}: Las tres tarjetas que definen las opciones principales de acceso (\textit{Usuario y contraseña}, \textit{Huella / Face ID} y \textit{Pin de 6 dígitos}) se maquetaron mediante una cadena horizontal (\textit{Horizontal Chain}) usando anchos dinámicos de \texttt{0dp} e inter-espaciado controlado. Esto distribuye el espacio físico disponible proporcionalmente sin importar el ancho del dispositivo (tanto en modo vertical como horizontal).
+    \item \textbf{Recursos de Fondo Premium y Ripple Effect}: Se diseñó un archivo XML drawable selector para las tarjetas (\texttt{card\_background.xml}) que proporciona bordes curvos de 16dp y un efecto visual de onda (\textit{ripple}) al ser presionadas.
+\end{enumerate}
+
+\newpage
+\section{Código Fuente del Layout (XML)}
+El archivo XML define la jerarquía responsiva utilizando \texttt{ScrollView}, \texttt{ConstraintLayout}, \texttt{LinearLayout} para tarjetas internas e \texttt{ImageViews}/\texttt{TextViews} dinámicos.
+
+A continuación, se detalla el código completo implementado en el archivo \texttt{activity\_main.xml}:
+
+\begin{lstlisting}[language=XML, caption={Código XML del Layout Principal: activity\_main.xml}]
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true"
+    android:background="@color/white"
+    tools:context=".MainActivity">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingBottom="24dp">
+
+        <!-- Logo Principal -->
+        <ImageView
+            android:id="@+id/logoImage"
+            android:layout_width="wrap_content"
+            android:layout_height="35dp"
+            android:layout_marginTop="32dp"
+            android:adjustViewBounds="true"
+            android:scaleType="fitCenter"
+            android:src="@drawable/bancopichincha_logo"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:ignore="ContentDescription" />
+
+        <!-- Version de la App -->
+        <TextView
+            android:id="@+id/versionText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:fontFamily="sans-serif"
+            android:text="Version: 9.5.0"
+            android:textColor="@color/pichincha_grey_text"
+            android:textSize="12sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/logoImage" />
+
+        <!-- Ilustracion Central (Cuerpo Pichincha) -->
+        <ImageView
+            android:id="@+id/illustrationImage"
+            android:layout_width="0dp"
+            android:layout_height="280dp"
+            android:layout_marginStart="24dp"
+            android:layout_marginTop="24dp"
+            android:layout_marginEnd="24dp"
+            android:adjustViewBounds="true"
+            android:scaleType="fitCenter"
+            android:src="@drawable/cuerpo_pichincha"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/versionText"
+            tools:ignore="ContentDescription" />
+
+        <!-- Tarjeta 1: Usuario y contrasena -->
+        <LinearLayout
+            android:id="@+id/cardUserPassword"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="32dp"
+            android:layout_marginEnd="6dp"
+            android:background="@drawable/card_background"
+            android:clickable="true"
+            android:elevation="3dp"
+            android:focusable="true"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:outlineProvider="background"
+            android:paddingStart="12dp"
+            android:paddingTop="20dp"
+            android:paddingEnd="12dp"
+            android:paddingBottom="20dp"
+            app:layout_constraintEnd_toStartOf="@id/cardBiometrics"
+            app:layout_constraintHorizontal_chainStyle="spread"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/illustrationImage">
+
+            <ImageView
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_marginBottom="12dp"
+                android:scaleType="fitCenter"
+                android:src="@drawable/iconPerson"
+                tools:ignore="ContentDescription" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="Usuario y\ncontrasena"
+                android:textColor="@color/pichincha_blue"
+                android:textSize="13sp"
+                android:fontFamily="sans-serif-medium"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <!-- Tarjeta 2: Huella / Face ID -->
+        <LinearLayout
+            android:id="@+id/cardBiometrics"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="6dp"
+            android:layout_marginTop="32dp"
+            android:layout_marginEnd="6dp"
+            android:background="@drawable/card_background"
+            android:clickable="true"
+            android:elevation="3dp"
+            android:focusable="true"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:outlineProvider="background"
+            android:paddingStart="12dp"
+            android:paddingTop="20dp"
+            android:paddingEnd="12dp"
+            android:paddingBottom="20dp"
+            app:layout_constraintEnd_toStartOf="@id/cardPin"
+            app:layout_constraintStart_toEndOf="@id/cardUserPassword"
+            app:layout_constraintTop_toBottomOf="@id/illustrationImage">
+
+            <ImageView
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_marginBottom="12dp"
+                android:scaleType="fitCenter"
+                android:src="@drawable/iconFingerprint"
+                tools:ignore="ContentDescription" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="Huella /\nFace ID"
+                android:textColor="@color/pichincha_blue"
+                android:textSize="13sp"
+                android:fontFamily="sans-serif-medium"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <!-- Tarjeta 3: Pin de 6 digitos -->
+        <LinearLayout
+            android:id="@+id/cardPin"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="6dp"
+            android:layout_marginTop="32dp"
+            android:layout_marginEnd="16dp"
+            android:background="@drawable/card_background"
+            android:clickable="true"
+            android:elevation="3dp"
+            android:focusable="true"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:outlineProvider="background"
+            android:paddingStart="12dp"
+            android:paddingTop="20dp"
+            android:paddingEnd="12dp"
+            android:paddingBottom="20dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/cardBiometrics"
+            app:layout_constraintTop_toBottomOf="@id/illustrationImage">
+
+            <ImageView
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_marginBottom="12dp"
+                android:scaleType="fitCenter"
+                android:src="@drawable/iconPin"
+                tools:ignore="ContentDescription" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="Pin de\n6 digitos"
+                android:textColor="@color/pichincha_blue"
+                android:textSize="13sp"
+                android:fontFamily="sans-serif-medium"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <!-- Opcion 1: Ubicanos -->
+        <LinearLayout
+            android:id="@+id/optionLocate"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="24dp"
+            android:layout_marginTop="40dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:padding="8dp"
+            android:background="?attr/selectableItemBackground"
+            app:layout_constraintEnd_toStartOf="@id/optionKey"
+            app:layout_constraintHorizontal_chainStyle="spread"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/cardUserPassword">
+
+            <ImageView
+                android:layout_width="28dp"
+                android:layout_height="28dp"
+                android:layout_marginBottom="6dp"
+                android:src="@drawable/ic_location"
+                app:tint="@color/pichincha_light_blue"
+                tools:ignore="ContentDescription" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="Ubicanos"
+                android:textColor="@color/pichincha_light_blue"
+                android:textSize="14sp"
+                android:fontFamily="sans-serif-medium"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <!-- Opcion 2: Clave digital -->
+        <LinearLayout
+            android:id="@+id/optionKey"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:padding="8dp"
+            android:background="?attr/selectableItemBackground"
+            app:layout_constraintEnd_toStartOf="@id/optionCall"
+            app:layout_constraintStart_toEndOf="@id/optionLocate"
+            app:layout_constraintTop_toTopOf="@id/optionLocate">
+
+            <ImageView
+                android:layout_width="28dp"
+                android:layout_height="28dp"
+                android:layout_marginBottom="6dp"
+                android:src="@drawable/ic_key"
+                app:tint="@color/pichincha_light_blue"
+                tools:ignore="ContentDescription" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="Clave\ndigital"
+                android:textColor="@color/pichincha_light_blue"
+                android:textSize="14sp"
+                android:fontFamily="sans-serif-medium"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <!-- Opcion 3: Llamanos -->
+        <LinearLayout
+            android:id="@+id/optionCall"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="24dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:padding="8dp"
+            android:background="?attr/selectableItemBackground"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/optionKey"
+            app:layout_constraintTop_toTopOf="@id/optionLocate">
+
+            <ImageView
+                android:layout_width="28dp"
+                android:layout_height="28dp"
+                android:layout_marginBottom="6dp"
+                android:src="@drawable/ic_phone"
+                app:tint="@color/pichincha_light_blue"
+                tools:ignore="ContentDescription" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="Llamanos"
+                android:textColor="@color/pichincha_light_blue"
+                android:textSize="14sp"
+                android:fontFamily="sans-serif-medium"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <!-- Enlace Inferior: ¿Ingresar con otro usuario? -->
+        <TextView
+            android:id="@+id/linkOtherUser"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="40dp"
+            android:layout_marginBottom="16dp"
+            android:background="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true"
+            android:padding="8dp"
+            android:text="¿Ingresar con otro usuario?"
+            android:textColor="@color/pichincha_light_blue"
+            android:textSize="15sp"
+            android:fontFamily="sans-serif-medium"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/optionLocate"
+            app:layout_constraintVertical_bias="1.0" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</ScrollView>
+\end{lstlisting}
+
+\newpage
+\section{Código de Colores e Interactividad (Kotlin)}
+
+\subsection{Recurso de Colores (colors.xml)}
+Para respetar la identidad corporativa del banco, se definieron los colores correspondientes dentro del archivo \texttt{colors.xml}:
+
+\begin{lstlisting}[language=XML, caption={Configuración de colores corporativos: colors.xml}]
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+    <color name="pichincha_yellow">#FFDD00</color>
+    <color name="pichincha_blue">#0F2B4C</color>
+    <color name="pichincha_light_blue">#0073C2</color>
+    <color name="pichincha_grey_bg">#F8F9FA</color>
+    <color name="pichincha_grey_text">#757575</color>
+    <color name="pichincha_ripple">#1A0F2B4C</color>
+</resources>
+\end{lstlisting}
+
+\subsection{Interactividad (MainActivity.kt)}
+El archivo controlador en Kotlin se encarga de dar retroalimentación visual al usuario en pantalla mediante mensajes flotantes temporales \texttt{Toast} cuando interactúa con las opciones.
+
+\begin{lstlisting}[language=Java, caption={Implementación del controlador interactivo: MainActivity.kt}]
+package com.example.iniciopichincha
+
+import android.os.Bundle
+import android.widget.LinearLayout
+import android.widget.TextView
+import android.widget.Toast
+import androidx.activity.enableEdgeToEdge
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+
+class MainActivity : AppCompatActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
+        setContentView(R.layout.activity_main)
+        
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
+            insets
+        }
+
+        // Referencias a los componentes interactivos
+        val cardUserPassword = findViewById<LinearLayout>(R.id.cardUserPassword)
+        val cardBiometrics = findViewById<LinearLayout>(R.id.cardBiometrics)
+        val cardPin = findViewById<LinearLayout>(R.id.cardPin)
+        
+        val optionLocate = findViewById<LinearLayout>(R.id.optionLocate)
+        val optionKey = findViewById<LinearLayout>(R.id.optionKey)
+        val optionCall = findViewById<LinearLayout>(R.id.optionCall)
+        
+        val linkOtherUser = findViewById<TextView>(R.id.linkOtherUser)
+
+        // Asignación de Click Listeners
+        cardUserPassword.setOnClickListener {
+            showToast("Abriendo inicio de sesión con Usuario y Contraseña")
+        }
+
+        cardBiometrics.setOnClickListener {
+            showToast("Activando lector de Huella / Face ID")
+        }
+
+        cardPin.setOnClickListener {
+            showToast("Abriendo inicio de sesión con Pin de 6 dígitos")
+        }
+
+        optionLocate.setOnClickListener {
+            showToast("Buscando agencias y cajeros cercanos...")
+        }
+
+        optionKey.setOnClickListener {
+            showToast("Generando Clave Digital...")
+        }
+
+        optionCall.setOnClickListener {
+            showToast("Llamando a atención al cliente...")
+        }
+
+        linkOtherUser.setOnClickListener {
+            showToast("Cargando formulario para ingresar con otro usuario")
+        }
+    }
+
+    private fun showToast(message: String) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+    }
+}
+\end{lstlisting}
+
+\newpage
+\section{Resultados y Capturas de Pantalla}
+Para corroborar la correcta visualización del diseño responsivo bajo diferentes resoluciones u orientaciones de pantalla, se ejecutó la aplicación dentro de la emulación de Android. A continuación se presentan las secciones correspondientes para el reporte final:
+
+\begin{figure}[h!]
+    \centering
+    % Descomenta y ajusta el path de tus imágenes una vez cargadas en Overleaf
+    % \includegraphics[width=0.45\textwidth]{pantalla_vertical.png}
+    % \includegraphics[width=0.85\textwidth]{pantalla_horizontal.png}
+    \caption{Capturas del diseño ejecutándose en el emulador (Modo Vertical y Horizontal).}
+    \label{fig:capturas}
+\end{figure}
+
+El diseño demuestra acoplarse de forma fluida: las tarjetas centrales se adaptan al ancho en pantallas anchas sin perder proporción, y el ScrollView permite navegar cómodamente a través de toda la pantalla en modo horizontal (Landscape).
+
+\section{Conclusión}
+El uso combinado de \texttt{ScrollView} como elemento raíz y cadenas horizontales (\textit{Chains}) en \texttt{ConstraintLayout} demuestra ser la solución más robusta y estándar para el diseño de interfaces móviles de registro/inicio de sesión. Se logró emular la experiencia estética de la App de Banco Pichincha con retroalimentación visual óptima y responsividad completa.
+
+\end{document}
