@@ -38,16 +38,6 @@ El diseño y la lógica están divididos en los siguientes módulos del proyecto
 
 ---
 
-## Capturas de Pantalla (Diseño en Emulador / Teléfono)
-
-*A continuación, se adjuntan las capturas del diseño corriendo en el entorno de pruebas:*
-
-| Pantalla Vertical (Portrait) | Pantalla Horizontal (Landscape) |
-| --- | --- |
-| ![Captura Vertical](capturas/pantalla_vertical.png) | ![Captura Horizontal](capturas/pantalla_horizontal.png) |
-
----
-
 ## Instrucciones para Compilar y Ejecutar
 
 1. Clona este repositorio o copia los archivos fuente en tu espacio de trabajo local de Android Studio.
