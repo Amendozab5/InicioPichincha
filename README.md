@@ -25,6 +25,16 @@ Este repositorio contiene la implementación del diseño responsivo y adaptativo
 
 ---
 
+## Captura del Diseño de la App
+
+A continuación se muestra la captura del diseño responsivo implementado, incluyendo la vista de diseño visual (Design) y la estructura de componentes (Blueprint) en Android Studio:
+
+<p align="center">
+  <img src="app/src/main/res/drawable/diseñoApp.png" alt="Diseño de la App - Banco Pichincha" width="90%">
+</p>
+
+---
+
 ## Estructura del Código Relevante
 
 El diseño y la lógica están divididos en los siguientes módulos del proyecto:
